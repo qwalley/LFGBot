@@ -1,0 +1,23 @@
+{
+  "name": "lfgbot",
+  "version": "1.0.0",
+  "description": "Discord bot to maintain an LFG channel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qwalley/LFGBot.git"
+  },
+  "author": "Will Alley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qwalley/LFGBot/issues"
+  },
+  "homepage": "https://github.com/qwalley/LFGBot#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0"
+  }
+}
