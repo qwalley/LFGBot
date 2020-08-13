@@ -16,7 +16,6 @@ bot.login(TOKEN);
 
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
-  console.info(`Hello I'm ${config.name}`);
   // post a welcome message in each of hte assigned channels
   for (const id of config.channels) {
     bot.channels.fetch(id)
@@ -27,10 +26,16 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
+  // check that message is on the correct channel
+  if (!config.channels.includes(msg.channel.id)) return;
   // assume first word is intended as a command
   const args = msg.content.split(/ +/);
-  const command = args.shift().toLowerCase();
-
+  command = args.shift().toLowerCase();
+  // check that command has correct prefix
+  regex = new RegExp('^' + config.prefix);
+  if (!regex.test(command)) return;
+  // check that bot has command
+  command = command.replace(regex, '');
   if (!bot.commands.has(command)) return;
 
   console.info(`Called command: ${command}`);
