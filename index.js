@@ -19,7 +19,13 @@ bot.on('ready', () => {
   // post a welcome message in each of hte assigned channels
   for (const id of config.channels) {
     bot.channels.fetch(id)
-      .then(channel => { channel.send(`Hi, I'm ${config.name}`) })
+      .then(channel => channel.send(`Hi, I'm ${config.name}`))
+      // use reactions as an interface for user input
+      .then(message => {
+        message.react('🅰️');
+        return message;
+      })
+      .then(message => message.react('🅱️'))
       .catch(console.error);
   }
 
