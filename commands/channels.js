@@ -12,7 +12,7 @@ module.exports = {
 				// return array of channel names, or warnings for channels that didn't fulfill
 				return results.map(result => {
 					if (result.status == 'fulfilled') {
-						return `${result.value.name} (id: ${result.value.id})`;
+						return `${result.value.name} (id: ${result.value.id}, server: ${result.value.guild.name})`;
 					}
 					else {
 						return `Cannot find ${result.reason.path}`;
@@ -20,7 +20,9 @@ module.exports = {
 				});
 			})
 			// reply with formatted list of channel names
-			.then(channel_names => msg.reply('Listening to the following channels:\n' + channel_names.join('\n')))
+			.then(channel_names => {
+				msg.reply('Listening to the following channels:\n' + channel_names.join('\n'))
+			})
 			.catch(error => {
 				msg.reply("Something wen't wrong, please try again later.");
 				console.long(error);
