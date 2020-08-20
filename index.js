@@ -19,13 +19,13 @@ bot.on('ready', () => {
   // post a welcome message in each of hte assigned channels
   for (const id of config.channels) {
     bot.channels.fetch(id)
-      .then(channel => channel.send(`Hi, I'm ${config.name}`))
-      // use reactions as an interface for user input
-      .then(message => {
-        message.react('🅰️');
-        return message;
+      .then(async channel => {
+        // fetch and delete old messages
+        const message_bulk = await channel.messages.fetch({limit : 100});
+        channel.bulkDelete(message_bulk);
+        // post welcome message with instructions
+        channel.send(`Hi, I'm ${config.name}`)
       })
-      .then(message => message.react('🅱️'))
       .catch(console.error);
   }
 
