@@ -5,8 +5,8 @@ const embed = (description, author, invite, group_type) => {
 	return inviteEmbed = new Discord.MessageEmbed()
 		.setColor(config.tag_roles[group_type][1])
 		.setTitle(description)
-		.setAuthor(author.nickname, author.user.avatarURL())
-		.setDescription(`Join them on Discord, in [${invite.channel.name}](${invite})`)
+		.setAuthor(`${author.nickname}`, author.user.avatarURL())
+		.setDescription(`Join <@${author.id}> on Discord, in [${invite.channel.name}](${invite})`)
 		.addField('LFG Role:', `<@&${config.tag_roles[group_type][0]}>`, false)
 		.setTimestamp()
 		.setFooter('React with ❌ to delete this message')
@@ -18,9 +18,6 @@ module.exports = {
 	async execute(msg, args) {
 		const guild = msg.client.guilds.resolve(config.master);
 		const voice = guild.voiceStates.resolve(msg.author.id);
-		
-		// delete message to keep channel clean
-		await msg.delete();
 
 		if (!(voice && voice.channel)) {
 			// tell user to be in a voice channel on the main server

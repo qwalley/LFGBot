@@ -31,9 +31,16 @@ bot.on('ready', () => {
 
 });
 
-bot.on('message', msg => {
+bot.on('message', async msg => {
   // check that message is on the correct channel
   if (!config.channels.includes(msg.channel.id)) return;
+  // if author is not this bot, delete message to reduce cluter
+  if (bot.user.id === msg.author.id) {
+    return;
+  }
+  else {
+    await msg.delete();
+  }
   // assume first word is intended as a command
   const args = msg.content.split(/ +/);
   command = args.shift().toLowerCase();
