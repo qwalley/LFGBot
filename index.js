@@ -19,30 +19,37 @@ const parseEmbedUser = (embed) => {
   return description[1].slice(2, -1)
 
 }
-const welcomeEmbed = {
+const enterChannel = (id, embed) => {
+  return bot.channels.fetch(id)
+    .then(async channel => {
+      // fetch and delete old messages
+      const message_bulk = await channel.messages.fetch({limit : 100});
+      channel.bulkDelete(message_bulk);
+      // post welcome message with instructions
+      channel.send({embed: embed});
+    });
+}
+const master_embed = {
   title: 'Hi I\'m LFG BOT!',
   description: 'join <@364219729491263498> in sfkjslkdfjls'
 }
+const broadcast_embed = {
+  title: 'Hi I\'m LFG BOT!',
+  description: 'this is a broadcast_embed'
+}
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
-  // post a welcome message in each of hte assigned channels
-  for (const id of config.channels) {
-    bot.channels.fetch(id)
-      .then(async channel => {
-        // fetch and delete old messages
-        const message_bulk = await channel.messages.fetch({limit : 100});
-        channel.bulkDelete(message_bulk);
-        // post welcome message with instructions
-        channel.send({embed: welcomeEmbed});
-      })
-      .catch(console.error);
-  }
-
+  // create an array of send promises for each broadcast channel
+  channel_promises = config.broadcast_channels.map(id => enterChannel(id, broadcast_embed));
+  // add send promise for master channel
+  channel_promises.push(enterChannel(config.master_channel, master_embed));
+  // wait for all promises to resolve
+  Promise.allSettled(channel_promises).catch(console.error)
 });
 
 bot.on('message', async msg => {
   // check that message is on the correct channel
-  if (!config.channels.includes(msg.channel.id)) return;
+  if (config.master_channel !== msg.channel.id) return;
   // if author is not this bot, delete message to reduce cluter
   if (bot.user.id === msg.author.id) {
     return;

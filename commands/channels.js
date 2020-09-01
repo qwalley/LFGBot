@@ -5,7 +5,8 @@ module.exports = {
 	description: 'lists all available channels',
 	execute(msg, args) {
 		// make array of fetch promises
-		const channel_promises = config.channels.map(id => msg.client.channels.fetch(id))
+		let channel_promises = config.broadcast_channels.map(id => msg.client.channels.fetch(id))
+		channel_promises.push(msg.client.channels.fetch(config.master_channel))
 		// wait for all promises to either resolve or reject
 		Promise.allSettled(channel_promises)
 			.then(results => {
@@ -25,7 +26,7 @@ module.exports = {
 			})
 			.catch(error => {
 				msg.reply("Something wen't wrong, please try again later.");
-				console.long(error);
+				console.log(error);
 			})
 	}
 }
