@@ -14,6 +14,15 @@ const TOKEN = process.env.TOKEN;
 
 bot.login(TOKEN);
 
+const parseEmbedUser = (embed) => {
+  const description = embed.description.split(/ +/);
+  return description[1].slice(2, -1)
+
+}
+const welcomeEmbed = {
+  title: 'Hi I\'m LFG BOT!',
+  description: 'join <@364219729491263498> in sfkjslkdfjls'
+}
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
   // post a welcome message in each of hte assigned channels
@@ -24,7 +33,7 @@ bot.on('ready', () => {
         const message_bulk = await channel.messages.fetch({limit : 100});
         channel.bulkDelete(message_bulk);
         // post welcome message with instructions
-        channel.send(`Hi, I'm ${config.name}`)
+        channel.send({embed: welcomeEmbed});
       })
       .catch(console.error);
   }
@@ -59,4 +68,14 @@ bot.on('message', async msg => {
     console.error(error);
     msg.reply('there was an error trying to execute that command!');
   }
+});
+
+bot.on('messageReactionAdd', (reaction, user) => {
+  const msg = reaction.message;
+  // check that message is on the correct channel
+  if (!config.channels.includes(msg.channel.id)) return;
+  // ignore this bot's reactions
+  if (bot.user.id === user.id) return;
+  // check that user reacting is the user who posted the thing
+  if (user.id !== parseEmbedMessage(msg.embeds[0].toJSON())) return;
 });
