@@ -27,6 +27,6 @@ module.exports = {
 			}
 			return ret;
 		});
-		msg.reply('```' + guilds.join('\n') + '```');
+		msg.reply('```' + guilds.join('\n') + '```').catch(console.error);
 	}
 }

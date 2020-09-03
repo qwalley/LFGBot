@@ -22,11 +22,15 @@ const parseEmbedUser = (embed) => {
 const enterChannel = (id, embed) => {
   return bot.channels.fetch(id)
     .then(async channel => {
-      // fetch and delete old messages
-      const message_bulk = await channel.messages.fetch({limit : 100});
-      channel.bulkDelete(message_bulk);
+      try {
+        // fetch and delete old messages
+        const message_bulk = await channel.messages.fetch({limit : 100});
+        channel.bulkDelete(message_bulk);
+      } catch (e) {
+        console.error(e)
+      }
       // post welcome message with instructions
-      channel.send({embed: embed});
+      channel.send({embed: embed}).catch(console.error)
     });
 }
 const master_embed = {

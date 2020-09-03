@@ -26,7 +26,7 @@ module.exports = {
 			})
 			.catch(error => {
 				msg.reply("Something wen't wrong, please try again later.");
-				console.log(error);
+				console.error(error);
 			})
 	}
 }

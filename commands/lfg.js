@@ -39,19 +39,27 @@ module.exports = {
 		const description = args.join(' ');
 		const author = guild.members.resolve(msg.author.id);
 		const channel = guild.channels.resolve(voice.channel);
-		let invite = await channel.createInvite();
-		
-		msg.channel.send(embed(description, author, invite, group_type))
+		try {
+			let invite = await channel.createInvite();
+			msg.channel.send(embed(description, author, invite, group_type))
+				.then(message => {
+					message.react('❌');
+					return message;
+				})
+				// schedule each message to be deleted after two hours
+				.then(message => {
+					message.delete({timeout: 2*60*60*1000});
+				})
+				.catch(console.error);
+		} catch(e) {
+			console.log(e)
+			msg.channel.send('Sorry there was a problem with that command.')
 			.then(message => {
-				message.react('❌');
-				return message;
-			})
-			// schedule each message to be deleted after two hours
-			.then(message => {
-				// console.log(message);
-				message.delete({timeout: 2*60*60*1000});
+				message.delete({timeout: 2*60*1000});
 			})
 			.catch(console.error);
+		}
+		
 	}
 
 }
