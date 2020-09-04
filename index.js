@@ -35,7 +35,7 @@ const enterChannel = (id, embed) => {
 }
 const master_embed = {
   title: 'Hi I\'m LFG BOT!',
-  description: 'join <@364219729491263498> in sfkjslkdfjls'
+  description: 'Post your adds in the format `!lfg [famefarm|hellgate|gank] [description]`'
 }
 const broadcast_embed = {
   title: 'Hi I\'m LFG BOT!',
@@ -84,7 +84,7 @@ bot.on('message', async msg => {
 bot.on('messageReactionAdd', (reaction, user) => {
   const msg = reaction.message;
   // check that message is on the correct channel
-  if (!config.channels.includes(msg.channel.id)) return;
+  if (config.master_channel !== msg.channel.id) return;
   // ignore this bot's reactions
   if (bot.user.id === user.id) return;
   // check that user reacting is the user who posted the thing
