@@ -88,5 +88,7 @@ bot.on('messageReactionAdd', (reaction, user) => {
   // ignore this bot's reactions
   if (bot.user.id === user.id) return;
   // check that user reacting is the user who posted the thing
-  if (user.id !== parseEmbedMessage(msg.embeds[0].toJSON())) return;
+  if (user.id !== parseEmbedUser(msg.embeds[0].toJSON())) return;
+  //finally
+  msg.delete().catch(console.error);
 });
