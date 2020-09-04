@@ -10,7 +10,8 @@ module.exports = {
 	execute(msg, args) {
 		let guilds = msg.client.guilds.cache.map((guild) => {
 			let channels = {}
-			let ret = `${guild.name}:`;
+			let ret = `${guild.name} (${guild.id}):`;
+			console.log(ret)
 			guild.channels.cache.map((channel) => {
 				if (channel.type === 'category') {
 					if (typeof channels[channel.id] === 'undefined') channels[channel.id] = [];

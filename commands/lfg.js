@@ -16,7 +16,7 @@ module.exports = {
 	name: 'lfg',
 	description: 'create a group invitation for anykind of content',
 	async execute(msg, args) {
-		const guild = msg.client.guilds.resolve(config.master);
+		const guild = msg.client.guilds.resolve(config.master_guild);
 		const voice = guild.voiceStates.resolve(msg.author.id);
 
 		if (!(voice && voice.channel)) {
@@ -52,7 +52,7 @@ module.exports = {
 				})
 				.catch(console.error);
 		} catch(e) {
-			console.log(e)
+			console.error(e)
 			msg.channel.send('Sorry there was a problem with that command.')
 			.then(message => {
 				message.delete({timeout: 2*60*1000});
