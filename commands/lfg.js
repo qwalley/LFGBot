@@ -1,21 +1,43 @@
 const config = require('../config.json');
 const Discord = require('discord.js');
 
-const embed = (description, author, invite, group_type) => {
-	return inviteEmbed = new Discord.MessageEmbed()
-		.setColor(config.tag_roles[group_type][1])
-		.setTitle(description)
-		.setAuthor(`${author.nickname}`, author.user.avatarURL())
-		.setDescription(`Join <@${author.id}> on Discord, in [${invite.channel.name}](${invite})`)
-		.addField('LFG Role:', `<@&${config.tag_roles[group_type][0]}>`, false)
-		.setTimestamp()
-		.setFooter('React with ❌ to delete this message')
+const inviteEmbed = async (description, author, channel, group_type) => {
+	try {
+		throw 'sample error'
+		let invite = await channel.createInvite();
+		const inviteEmbed = new Discord.MessageEmbed()
+			.setColor(config.tag_roles[group_type][1])
+			.setTitle(description)
+			.setAuthor(`${author.nickname}`, author.user.avatarURL())
+			.setDescription(`Join <@${author.id}> on Discord, in [${invite.channel.name}](${invite})`)
+			.addField('LFG Role:', `<@&${config.tag_roles[group_type][0]}>`, false)
+			.setTimestamp()
+			.setFooter('React with ❌ to delete this message');
+		return inviteEmbed;
+	} catch(e) {
+		throw 'LFGBot/commands/lfg.js:5 There was an error creating the invite.' + ('\n' + e).replace(/\n/g, '\n\t');
+	}
+}
+
+const postInvite = (channel, embed) => {
+	channel.send(embed)
+		.then(message => {
+			message.react('❌');
+			return message;
+		})
+		// schedule each message to be deleted after two hours
+		.then(message => {
+			message.delete({timeout: 2*60*60*1000});
+		})
+		.catch(e => {
+			throw `LFGBot/commands/lfg.js:24 There was an error sending to ${channel.name} (${channel.id} in ${channel.guild.name}) ${('\n' + e).replace(/\n/g, '\n\t')}`;
+		});
 }
 
 module.exports = {
 	name: 'lfg',
 	description: 'create a group invitation for anykind of content',
-	async execute(msg, args) {
+	execute(msg, args) {
 		const guild = msg.client.guilds.resolve(config.master_guild);
 		const voice = guild.voiceStates.resolve(msg.author.id);
 
@@ -39,27 +61,18 @@ module.exports = {
 		const description = args.join(' ');
 		const author = guild.members.resolve(msg.author.id);
 		const channel = guild.channels.resolve(voice.channel);
-		try {
-			let invite = await channel.createInvite();
-			msg.channel.send(embed(description, author, invite, group_type))
-				.then(message => {
-					message.react('❌');
-					return message;
-				})
-				// schedule each message to be deleted after two hours
-				.then(message => {
-					message.delete({timeout: 2*60*60*1000});
-				})
-				.catch(console.error);
-		} catch(e) {
-			console.error(e)
-			msg.channel.send('Sorry there was a problem with that command.')
-			.then(message => {
-				message.delete({timeout: 2*60*1000});
-			})
-			.catch(console.error);
-		}
-		
-	}
 
+		return inviteEmbed(description, author, channel, group_type)
+			.then(embed => {
+				// build array of promises to post embed in each broadcast channel
+				let send_promises = config.broadcast_channels.map(id => postInvite(msg.client.channels.resolve(id), embed))
+				// add promise for master channel
+				send_promises.push(postInvite(msg.client.channels.resolve(config.master_channel), embed));
+				// allow all promises to settle
+				Promise.allSettled(send_promises);
+			})
+			.catch(e => {
+				throw 'LFGBot/commands/lfg.js:64 There was an error sending the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+			});
+	}
 }

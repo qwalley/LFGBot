@@ -31,11 +31,30 @@ const enterChannel = (id, embed) => {
       }
       // post welcome message with instructions
       channel.send({embed: embed}).catch(console.error)
-    });
+    })
+    .catch(console.error);
 }
 const master_embed = {
-  title: 'Hi I\'m LFG BOT!',
-  description: 'Post your adds in the format `!lfg [famefarm|hellgate|gank] [description]`'
+  title: 'Use this channel to post adds for your group content!',
+  description: `
+    You must be in a voice channel!\n
+    Post your adds in the format:\n
+    \`!lfg [famefarm|hellgate|gank] [description]\`
+  `,
+  fields: [
+    {
+      name: 'Example 1',
+      value: '!lfg famefarm Need tank and 1 dps for T5 BBP random dungeons 900IP min'
+    },
+    {
+      name: 'Example 2',
+      value: '!lfg gank Gank group leaving from BBP HO | max 10 people | bring 1000IP or higher gank builds'
+    },
+    {
+      name: 'Example 3',
+      value: '!lfg hellgate Need partner for 2v2 HGs near Arthur\'s Rest, I can run curse or holy healer'
+    }
+  ]
 }
 const broadcast_embed = {
   title: 'Hi I\'m LFG BOT!',
@@ -72,9 +91,9 @@ bot.on('message', async msg => {
   if (!bot.commands.has(command)) return;
 
   console.info(`Called command: ${command}`);
-  
+  // execute the command, all commands should return promises
   try {
-    bot.commands.get(command).execute(msg, args);
+    await bot.commands.get(command).execute(msg, args);
   } catch (error) {
     console.error(error);
     msg.reply('there was an error trying to execute that command!');
@@ -91,4 +110,5 @@ bot.on('messageReactionAdd', (reaction, user) => {
   if (user.id !== parseEmbedUser(msg.embeds[0].toJSON())) return;
   //finally
   msg.delete().catch(console.error);
+  // will need to look through mirror channels and delete those messages
 });
