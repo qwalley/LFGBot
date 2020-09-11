@@ -35,6 +35,8 @@ module.exports = {
 			.then(message => {
 				message.delete({timeout: 2*60*60*1000});
 			})
-			.catch(console.error);
+			.catch(e => {
+				throw 'LFGBot/commands/guilds.js:34 There was a problem sending the results.' + ('\n' + e).replace(/\n/g, '\n\t');
+			});
 	}
 }

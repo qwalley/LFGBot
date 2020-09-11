@@ -57,8 +57,12 @@ const master_embed = {
   ]
 }
 const broadcast_embed = {
-  title: 'Hi I\'m LFG BOT!',
-  description: 'this is a broadcast_embed'
+  title: 'This is a broadcast channel for the iloveBacon LFG Bot!',
+  description: `
+    LFG posts that are made on the iLoveBacons server will be copied here.\n
+    Clicking on the link in the descriptions will let you join the group in a voice party!\n
+    Head over to iLoveBacons to make your own LFG posts!
+  `
 }
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
