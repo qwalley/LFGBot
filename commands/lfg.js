@@ -1,29 +1,32 @@
 const config = require('../config.json');
 const Discord = require('discord.js');
 
-const inviteEmbed = async (description, author, channel, group_type) => {
-	try {
-		let invite = await channel.createInvite();
-		const inviteEmbed = new Discord.MessageEmbed()
-			.setColor(config.tag_roles[group_type][1])
-			.setTitle(description)
-			.setAuthor(`${author.nickname}`, author.user.avatarURL())
-			.setDescription(`Join <@${author.id}> on Discord, in [${invite.channel.name}](${invite})`)
-			.addField('LFG Role:', `<@&${config.tag_roles[group_type][0]}>`, false)
-			.setTimestamp()
-			.setFooter('React with ❌ to delete this message');
-		return inviteEmbed;
-	} catch(e) {
-		throw 'LFGBot/commands/lfg.js:5 There was an error creating the invite.' + ('\n' + e).replace(/\n/g, '\n\t');
-	}
-}
-
 // error handling here needs work, maybe switch to async function
-const postInvite = async (channel, embed) => {
+const postInvite = async (channel, args, invite) => {
+	let embed = null;
 	try {
-		let message = await channel.send(embed);
-		await message.react('❌');
-		await message.delete({timeout: 2*60*60*1000})
+		const name = args.author.nickname ? args.author.nickname : args.author.username;
+		embed = {
+			color: config.tag_roles[args.group_type][1],
+			thumbnail: {
+				url: args.author.user.avatarURL()
+			},
+			title: args.description,
+			description: `Posted by <@${args.author.id}>`,
+			timestamp: new Date(),
+			footer: {
+				text: channel.id === config.master_channel ? 'React with ❌ to delete this message' : 'Head over to the iLoveBacons server to make your own posts!'
+			}
+		}
+	} catch(e) {
+		throw 'LFGBot/commands/lfg.js:5 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+	}
+	try {
+		let message = await channel.send({embed: embed, content: invite});
+		if (channel.id === config.master_channel) {
+			await message.react('❌');
+		}
+		return message;
 	} catch(e) {
 		throw `LFGBot/commands/lfg.js:24 There was an error sending to ${channel.name} (${channel.id} in ${channel.guild.name}) ${('\n' + e).replace(/\n/g, '\n\t')}`;
 	}
@@ -54,46 +57,41 @@ module.exports = {
 			return;
 		}
 		// preparing info for the embed
-		const description = args.join(' ');
-		const author = guild.members.resolve(msg.author.id);
-		const channel = guild.channels.resolve(voice.channel);
-		let embed = null;
-		try {
-			// create embed message with invite to the voice channel
-			embed = await inviteEmbed(description, author, channel, group_type);
-		} catch (e) {
-			throw 'LFGBot/commands/lfg.js:62 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+		const embed_args = { 
+			author: guild.members.resolve(msg.author.id),
+			description: args.join(' '),
+			group_type: group_type
 		}
+		const channel = guild.channels.resolve(voice.channel);
+		// create invite to the voice channel
+		let invite = null;
+		try {
+			invite = await channel.createInvite();
+		} catch (e) {
+			throw 'LFGBot/commands/lfg.js:62 There was an error creating the invite.' + ('\n' + e).replace(/\n/g, '\n\t');
+		}
+		// send post to the master channel
+		try {
+			let master_message = await postInvite(msg.client.channels.resolve(config.master_channel), embed_args, invite);
+
+		} catch (e) {
+			throw 'LFGBot/commands/lfg.js:67 There was an error sending the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+		}
+		// if master was posted to, then post to broadcast channels
 		try {
 			// build array of promises to post embed in each broadcast channel
-			let send_promises = config.broadcast_channels.map(id => postInvite(msg.client.channels.resolve(id), embed))
-			// add promise for master channel
-			send_promises.push(postInvite(msg.client.channels.resolve(config.master_channel), embed));
+			let send_promises = config.broadcast_channels.map(id => postInvite(msg.client.channels.resolve(id), embed_args, invite))
 			// allow all promises to settle
 			let results = await Promise.allSettled(send_promises)
 			// look through completed promises for rejections
 			let rejections = []
 			results.forEach((p, i, results) => {
-				// rejected promises should 
-				if (p.status === 'rejected') {
-					let temp = p.reason;
-					// check for last promise, as this one is sent to the master server
-					if (i === results.length - 1) {
-						temp = 'CRITICAL ' + temp;
-					}
-					rejections.unshift(temp);
-				}
+				if (p.status === 'rejected') rejections.unshift(p.reason);
 			});
-			if (rejections.length > 0) {
-				throw rejections.join('\n');
-			}
+			if (rejections.length > 0) throw rejections.join('\n');
+		// failures to send to broadcast channels aren't critical
 		} catch (e) {
-			if (e.split(' ').shift() === 'CRITICAL') {
-				throw 'LFGBot/commands/lfg.js:67 There was an error sending the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
-			}
-			else {
-				console.error('Some messages could not be sent: \n' + e)
-			}
+			console.error('Some messages could not be sent: \n' + e)
 		}
 	}
 }

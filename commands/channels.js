@@ -19,7 +19,7 @@ module.exports = {
 					return `Cannot find ${result.reason.path}`;
 				} 
 			});
-			msg.reply('Listening to the following channels:\n' + channel_names.join('\n'))
+			msg.reply('Listening to the following channels:\n' + channels.join('\n'))
 		} catch(e) {
 			throw 'LFGBot/commands/channels.js: There was an error loading channel names.' + ('\n' + e).replace(/\n/g, '\n\t');
 		}
