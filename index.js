@@ -14,26 +14,6 @@ const TOKEN = process.env.TOKEN;
 
 bot.login(TOKEN);
 
-const parseEmbedUser = (embed) => {
-  const description = embed.description.split(/ +/);
-  return description[1].slice(2, -1)
-
-}
-const enterChannel = (id, embed) => {
-  return bot.channels.fetch(id)
-    .then(async channel => {
-      try {
-        // fetch and delete old messages
-        const message_bulk = await channel.messages.fetch({limit : 100});
-        channel.bulkDelete(message_bulk);
-      } catch (e) {
-        console.error(e)
-      }
-      // post welcome message with instructions
-      channel.send({embed: embed}).catch(console.error)
-    })
-    .catch(console.error);
-}
 const master_embed = {
   title: 'Use this channel to post adds for your group content!',
   description: `
@@ -64,6 +44,35 @@ const broadcast_embed = {
     Head over to iLoveBacons to make your own LFG posts!
   `
 }
+
+const parseEmbedUser = (message) => {
+  if (message.embeds.length === 0) return null;
+  const embed = message.embeds[0].toJSON();
+  const description = embed.description.split(/ +/);
+  return description[2].slice(2, -1)
+
+}
+const enterChannel = (id, embed) => {
+  return bot.channels.fetch(id)
+    .then(async channel => {
+      try {
+        // fetch and delete old messages
+        const message_bulk = await channel.messages.fetch({ limit: 100 });
+        channel.bulkDelete(message_bulk);
+      } catch (e) {
+        console.error(e)
+      }
+      // post welcome message with instructions
+      channel.send({embed: embed}).catch(console.error)
+    })
+    .catch(console.error);
+}
+const searchChannel = async (channelID, userID) => {
+  const channel = bot.channels.resolve(channelID);
+  const message_bulk = await channel.messages.fetch({ limit: 100 });
+  return message_bulk.find(message => parseEmbedUser(message) === userID)
+}
+
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
   // create an array of send promises for each broadcast channel
@@ -111,8 +120,22 @@ bot.on('messageReactionAdd', (reaction, user) => {
   // ignore this bot's reactions
   if (bot.user.id === user.id) return;
   // check that user reacting is the user who posted the thing
-  if (user.id !== parseEmbedUser(msg.embeds[0].toJSON())) return;
+  if (user.id !== parseEmbedUser(msg)) return;
   //finally
   msg.delete().catch(console.error);
   // will need to look through mirror channels and delete those messages
+});
+
+bot.on('voiceStateUpdate', (oldState, newState) => {
+  // is this on the master guild?
+  console.log('========== VoiceState Update ==========');
+  let oldInfo = ['no channel', oldState.guild.name]
+  let newInfo = ['no channel', newState.guild.name]
+  if (oldState.channel) oldInfo[0] = oldState.channel.name
+  if (newState.channel) newInfo[0] = newState.channel.name
+  console.log(`From:  ${oldInfo[0]} in ${oldInfo[1]}`);
+  console.log(`To:    ${newInfo[0]} in ${newInfo[1]}`);
+  let message = searchChannel(config.master_channel, newState.id)
+  if (!message) return;
+
 });
