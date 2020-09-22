@@ -70,7 +70,7 @@ const enterChannel = (id, embed) => {
 const searchChannel = async (channelID, userID) => {
   const channel = bot.channels.resolve(channelID);
   const message_bulk = await channel.messages.fetch({ limit: 100 });
-  return message_bulk.find(message => parseEmbedUser(message) === userID)
+  return message_bulk.find(message => parseEmbedUser(message) === userID);
 }
 
 bot.on('ready', () => {
@@ -126,16 +126,25 @@ bot.on('messageReactionAdd', (reaction, user) => {
   // will need to look through mirror channels and delete those messages
 });
 
-bot.on('voiceStateUpdate', (oldState, newState) => {
+bot.on('voiceStateUpdate', async (oldState, newState) => {
+  // check that the poster of a LFG has not left the voice channel advertised in the post
   // is this on the master guild?
-  console.log('========== VoiceState Update ==========');
-  let oldInfo = ['no channel', oldState.guild.name]
-  let newInfo = ['no channel', newState.guild.name]
-  if (oldState.channel) oldInfo[0] = oldState.channel.name
-  if (newState.channel) newInfo[0] = newState.channel.name
-  console.log(`From:  ${oldInfo[0]} in ${oldInfo[1]}`);
-  console.log(`To:    ${newInfo[0]} in ${newInfo[1]}`);
-  let message = searchChannel(config.master_channel, newState.id)
-  if (!message) return;
+  if (oldState.guild.id !== config.master_guild) return;
+  try {
+    // check if the player has a LFG post active
+    message = await searchChannel(config.master_channel, oldState.id)
+    if (!message) return;
+    // compare the invite in the message to the new voice channel
+    let newChannel = newState.guild.channels.resolve(newState.channelID);
+    let invites = await newChannel.fetchInvites();
+    const results = invites.filter(invite => invite.url === message.content);
+    // if the channel in the post matches the current channel, there's nothing to do
+    if (results.length > 0) return;
+    // otherwise delete the post
+    return await message.delete();
+  // will need to look through mirror channels and delete those messages
+  } catch (error) {
+    console.error(error);
+  }
 
 });
