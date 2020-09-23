@@ -4,6 +4,7 @@ const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
 const config = require('./config.json');
+const utility = require('./utility.js')
 
 // save mapping of command name to command execute function in bot object
 Object.keys(botCommands).map(key => {
@@ -45,13 +46,6 @@ const broadcast_embed = {
   `
 }
 
-const parseEmbedUser = (message) => {
-  if (message.embeds.length === 0) return null;
-  const embed = message.embeds[0].toJSON();
-  const description = embed.description.split(/ +/);
-  return description[2].slice(2, -1)
-
-}
 const enterChannel = (id, embed) => {
   return bot.channels.fetch(id)
     .then(async channel => {
@@ -66,11 +60,6 @@ const enterChannel = (id, embed) => {
       channel.send({embed: embed}).catch(console.error)
     })
     .catch(console.error);
-}
-const searchChannel = async (channelID, userID) => {
-  const channel = bot.channels.resolve(channelID);
-  const message_bulk = await channel.messages.fetch({ limit: 100 });
-  return message_bulk.find(message => parseEmbedUser(message) === userID);
 }
 
 bot.on('ready', () => {
@@ -113,17 +102,27 @@ bot.on('message', async msg => {
   }
 });
 
-bot.on('messageReactionAdd', (reaction, user) => {
-  const msg = reaction.message;
-  // check that message is on the correct channel
-  if (config.master_channel !== msg.channel.id) return;
-  // ignore this bot's reactions
-  if (bot.user.id === user.id) return;
-  // check that user reacting is the user who posted the thing
-  if (user.id !== parseEmbedUser(msg)) return;
-  //finally
-  msg.delete().catch(console.error);
-  // will need to look through mirror channels and delete those messages
+bot.on('messageReactionAdd', async (reaction, user) => {
+  try {
+    const msg = reaction.message;
+    // check that message is on the correct channel
+    if (config.master_channel !== msg.channel.id) return;
+    // ignore this bot's reactions
+    if (bot.user.id === user.id) return;
+    // check that user reacting is the user who posted the thing
+    if (user.id !== utility.parseEmbedUser(msg)) return;
+    await msg.delete()
+    // will need to look through mirror channels and delete those messages
+    let results = await utility.deleteAllChannels(bot, config.broadcast_channels, user.id)
+    // look through completed promises for rejections
+    let rejections = []
+    results.forEach((p, i, results) => {
+      if (p.status === 'rejected') rejections.unshift(p.reason);
+    });
+    if (rejections.length > 0) throw rejections.join('\n');
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 bot.on('voiceStateUpdate', async (oldState, newState) => {
@@ -132,17 +131,24 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
   if (oldState.guild.id !== config.master_guild) return;
   try {
     // check if the player has a LFG post active
-    message = await searchChannel(config.master_channel, oldState.id)
+    message = await utility.searchChannel(bot, config.master_channel, oldState.id)
     if (!message) return;
     // compare the invite in the message to the new voice channel
     let newChannel = newState.guild.channels.resolve(newState.channelID);
     let invites = await newChannel.fetchInvites();
-    const results = invites.filter(invite => invite.url === message.content);
+    const matchedInvites = invites.filter(invite => invite.url === message.content);
     // if the channel in the post matches the current channel, there's nothing to do
-    if (results.length > 0) return;
+    if (matchedInvites.length > 0) return;
     // otherwise delete the post
-    return await message.delete();
-  // will need to look through mirror channels and delete those messages
+    await message.delete();
+    // will need to look through mirror channels and delete those messages
+    let results = await utility.deleteAllChannels(bot, config.broadcast_channels, oldState.id)
+    // look through completed promises for rejections
+      let rejections = []
+      results.forEach((p, i, results) => {
+        if (p.status === 'rejected') rejections.unshift(p.reason);
+      });
+      if (rejections.length > 0) throw rejections.join('\n');
   } catch (error) {
     console.error(error);
   }
