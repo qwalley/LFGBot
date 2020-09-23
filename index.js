@@ -146,7 +146,8 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     // compare the invite in the message to the new voice channel
     let newChannel = newState.guild.channels.resolve(newState.channelID);
     let invites = await newChannel.fetchInvites();
-    const matchedInvites = invites.filter(invite => invite.url === message.content);
+    const msgInvite = message.content.split(' ')[0]
+    const matchedInvites = invites.filter(invite => invite.url === msgInvite);
     // if the channel in the post matches the current channel, there's nothing to do
     if (matchedInvites.length > 0) return;
     // otherwise delete the post

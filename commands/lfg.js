@@ -5,6 +5,7 @@ const utility = require('../utility.js');
 // error handling here needs work, maybe switch to async function
 const postInvite = async (channel, args, invite) => {
 	let embed = null;
+	let content = invite.url;
 	try {
 		const name = args.author.nickname ? args.author.nickname : args.author.username;
 		embed = {
@@ -12,7 +13,7 @@ const postInvite = async (channel, args, invite) => {
 			thumbnail: {
 				url: args.author.user.avatarURL()
 			},
-			title: args.description,
+			title: config.tag_roles[args.group_type][2] + ' ' + args.description,
 			description: `Posted by <@${args.author.id}>`,
 			timestamp: new Date(),
 			footer: {
@@ -23,7 +24,10 @@ const postInvite = async (channel, args, invite) => {
 		throw 'LFGBot/commands/lfg.js:5 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
 	}
 	try {
-		let message = await channel.send({embed: embed, content: invite});
+		if (channel.id === config.master_channel) {
+			content = `${content} <@&${config.tag_roles[args.group_type][0]}>`
+		}
+		let message = await channel.send({embed: embed, content: content});
 		if (channel.id === config.master_channel) {
 			await message.react('❌');
 		}
