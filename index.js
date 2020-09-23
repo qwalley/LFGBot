@@ -62,14 +62,24 @@ const enterChannel = (id, embed) => {
     .catch(console.error);
 }
 
-bot.on('ready', () => {
-  console.info(`Logged in as ${bot.user.tag}!`);
-  // create an array of send promises for each broadcast channel
-  channel_promises = config.broadcast_channels.map(id => enterChannel(id, broadcast_embed));
-  // add send promise for master channel
-  channel_promises.push(enterChannel(config.master_channel, master_embed));
-  // wait for all promises to resolve
-  Promise.allSettled(channel_promises).catch(console.error)
+bot.on('ready', async () => {
+  try {
+    console.info(`Logged in as ${bot.user.tag}!`);
+    // send welcome message to master channel
+    await enterChannel(config.master_channel, master_embed);
+    // create an array of send promises for each broadcast channel
+    channel_promises = config.broadcast_channels.map(id => enterChannel(id, broadcast_embed));
+    // wait for all promises to resolve
+    results = await Promise.allSettled(channel_promises);
+    // look for rejections
+    let rejections = []
+      results.forEach((p, i, results) => {
+        if (p.status === 'rejected') rejections.unshift(p.reason);
+      });
+      if (rejections.length > 0) throw rejections.join('\n');
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 bot.on('message', async msg => {

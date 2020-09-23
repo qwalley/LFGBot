@@ -1,5 +1,6 @@
 const config = require('../config.json');
 const Discord = require('discord.js');
+const utility = require('../utility.js');
 
 // error handling here needs work, maybe switch to async function
 const postInvite = async (channel, args, invite) => {
@@ -38,6 +39,13 @@ module.exports = {
 	async execute(msg, args) {
 		const guild = msg.client.guilds.resolve(config.master_guild);
 		const voice = guild.voiceStates.resolve(msg.author.id);
+		const priorPost = await utility.searchChannel(msg.client, config.master_channel, msg.author.id);
+
+		if (priorPost) {
+			// tell user that only one post is allowed at a time
+			msg.author.send('Only one post per user is permitted.');
+			return;
+		}
 
 		if (!(voice && voice.channel)) {
 			// tell user to be in a voice channel on the main server
