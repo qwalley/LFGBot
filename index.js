@@ -65,6 +65,7 @@ const enterChannel = (id, embed) => {
 bot.on('ready', async () => {
   try {
     console.info(`Logged in as ${bot.user.tag}!`);
+    console.log(bot)
     // send welcome message to master channel
     await enterChannel(config.master_channel, master_embed);
     // create an array of send promises for each broadcast channel
@@ -139,6 +140,8 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
   // check that the poster of a LFG has not left the voice channel advertised in the post
   // is this on the master guild?
   if (oldState.guild.id !== config.master_guild) return;
+  // ignore updates that aren't changes in voice channel
+  if (oldState.channelID === newState.channelID) return;
   try {
     // check if the player has a LFG post active
     message = await utility.searchChannel(bot, config.master_channel, oldState.id)

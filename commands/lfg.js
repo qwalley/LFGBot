@@ -13,8 +13,9 @@ const postInvite = async (channel, args, invite) => {
 			thumbnail: {
 				url: args.author.user.avatarURL()
 			},
-			title: config.tag_roles[args.group_type][2] + ' ' + args.description,
-			description: `Posted by <@${args.author.id}>`,
+			title: args.description,
+			// title: config.tag_roles[args.group_type][2] + ' ' + args.description,
+			description: `${config.tag_roles[args.group_type][2]} New **${args.group_type}** group posted by <@${args.author.id}>`,
 			timestamp: new Date(),
 			footer: {
 				text: channel.id === config.master_channel ? 'React with ❌ to delete this message' : 'Head over to the iLoveBacons server to make your own posts!'

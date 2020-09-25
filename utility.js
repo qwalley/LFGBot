@@ -3,7 +3,8 @@ exports.parseEmbedUser = (message) => {
  	if (message.embeds.length === 0) return null;
   	const embed = message.embeds[0].toJSON();
   	const description = embed.description.split(/ +/);
-  	return description[2].slice(2, -1)
+  	return description[6].slice(2, -1)
+  	// return description[5].slice(2, -1)
 
 }
 
