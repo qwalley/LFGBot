@@ -15,36 +15,8 @@ const TOKEN = process.env.TOKEN;
 
 bot.login(TOKEN);
 
-const master_embed = {
-  title: 'Use this channel to post adds for your group content!',
-  description: `
-    You must be in a voice channel!\n
-    Post your adds in the format:\n
-    \`!lfg [famefarm|hellgate|gank] [description]\`
-  `,
-  fields: [
-    {
-      name: 'Example 1',
-      value: '!lfg famefarm Need tank and 1 dps for T5 BBP random dungeons 900IP min'
-    },
-    {
-      name: 'Example 2',
-      value: '!lfg gank Gank group leaving from BBP HO | max 10 people | bring 1000IP or higher gank builds'
-    },
-    {
-      name: 'Example 3',
-      value: '!lfg hellgate Need partner for 2v2 HGs near Arthur\'s Rest, I can run curse or holy healer'
-    }
-  ]
-}
-const broadcast_embed = {
-  title: 'This is a broadcast channel for the iloveBacon LFG Bot!',
-  description: `
-    LFG posts that are made on the iLoveBacons server will be copied here.\n
-    Clicking on the link in the descriptions will let you join the group in a voice party!\n
-    Head over to iLoveBacons to make your own LFG posts!
-  `
-}
+const master_embed = config.embeds.master;
+const broadcast_embed = config.embeds.broadcast;
 
 const enterChannel = (id, embed) => {
   return bot.channels.fetch(id)
@@ -179,7 +151,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     console.log(`msgInvite: ${msgInvite}`)
     if (matchedInvites.size === 0) return;
     // otherwise set timeout to check again in three minutes
-    bot.setTimeout(delayedDelete, 1 * 30 * 1000, message, oldState.id, oldState.channelID);
+    bot.setTimeout(delayedDelete, 3 * 60 * 1000, message, oldState.id, oldState.channelID);
   } catch (error) {
     console.error(error);
   }
