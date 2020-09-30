@@ -62,10 +62,33 @@ const enterChannel = (id, embed) => {
     .catch(console.error);
 }
 
+const delayedDelete = async (message, userID, channelID) => {
+  const voiceState = message.guild.voiceStates.resolve(userID);
+  // if the user has returned to the correct channel during the three minutes, do nothing
+  console.log('checking channel.')
+  if (voiceState.channelID === channelID) return;
+  console.log('not in channel, deleting now.')
+  // if user is not in the right channel, then delete message, and all it's clones
+  try {
+    await message.delete();
+    // will need to look through mirror channels and delete those messages
+    let results = await utility.deleteAllChannels(bot, config.broadcast_channels, userID)
+    // look through completed promises for rejections
+      let rejections = []
+      // concatenate all the rejection messages
+      results.forEach((p, i, results) => {
+        if (p.status === 'rejected') rejections.unshift(p.reason);
+      });
+      if (rejections.length > 0) throw rejections.join('\n');
+      return results;
+  } catch (error) {
+      console.error('LFGBot/index.js:67 There was an error deleting messages.' + ('\n' + error).replace(/\n/g, '\n\t'));
+  }
+}
+
 bot.on('ready', async () => {
   try {
     console.info(`Logged in as ${bot.user.tag}!`);
-    console.log(bot)
     // send welcome message to master channel
     await enterChannel(config.master_channel, master_embed);
     // create an array of send promises for each broadcast channel
@@ -146,23 +169,17 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     // check if the player has a LFG post active
     message = await utility.searchChannel(bot, config.master_channel, oldState.id)
     if (!message) return;
-    // compare the invite in the message to the new voice channel
-    let newChannel = newState.guild.channels.resolve(newState.channelID);
-    let invites = await newChannel.fetchInvites();
-    const msgInvite = message.content.split(' ')[0]
-    const matchedInvites = invites.filter(invite => invite.url === msgInvite);
-    // if the channel in the post matches the current channel, there's nothing to do
-    if (matchedInvites.length > 0) return;
-    // otherwise delete the post
-    await message.delete();
-    // will need to look through mirror channels and delete those messages
-    let results = await utility.deleteAllChannels(bot, config.broadcast_channels, oldState.id)
-    // look through completed promises for rejections
-      let rejections = []
-      results.forEach((p, i, results) => {
-        if (p.status === 'rejected') rejections.unshift(p.reason);
-      });
-      if (rejections.length > 0) throw rejections.join('\n');
+    // old channel matches with channel invite in the LFG post then set a timeout to delete the post
+    const oldChannel = oldState.guild.channels.resolve(oldState.channelID);
+    const msgInvite = message.content.split(' ')[2]
+    const channelInvites = await oldChannel.fetchInvites();
+    const matchedInvites = channelInvites.filter(invite => invite.url === msgInvite);
+    // if the user has not left the channel in the LFG Post, there's nothing to do
+    console.log(`old channel: ${oldState.channelID} \t new channel: ${newState.channelID}`)
+    console.log(`msgInvite: ${msgInvite}`)
+    if (matchedInvites.size === 0) return;
+    // otherwise set timeout to check again in three minutes
+    bot.setTimeout(delayedDelete, 1 * 30 * 1000, message, oldState.id, oldState.channelID);
   } catch (error) {
     console.error(error);
   }

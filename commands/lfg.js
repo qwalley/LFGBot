@@ -6,6 +6,7 @@ const utility = require('../utility.js');
 const postInvite = async (channel, args, invite) => {
 	let embed = null;
 	let content = invite.url;
+	// define the embed
 	try {
 		const name = args.author.nickname ? args.author.nickname : args.author.username;
 		embed = {
@@ -15,7 +16,7 @@ const postInvite = async (channel, args, invite) => {
 			},
 			title: args.description,
 			// title: config.tag_roles[args.group_type][2] + ' ' + args.description,
-			description: `${config.tag_roles[args.group_type][2]} New **${args.group_type}** group posted by <@${args.author.id}>`,
+			description: `New **${args.group_type}** group posted by <@${args.author.id}>`,
 			timestamp: new Date(),
 			footer: {
 				text: channel.id === config.master_channel ? 'React with ❌ to delete this message' : 'Head over to the iLoveBacons server to make your own posts!'
@@ -24,9 +25,13 @@ const postInvite = async (channel, args, invite) => {
 	} catch(e) {
 		throw 'LFGBot/commands/lfg.js:5 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
 	}
+	// define the message content
 	try {
 		if (channel.id === config.master_channel) {
-			content = `${content} <@&${config.tag_roles[args.group_type][0]}>`
+			content = `${config.tag_roles[args.group_type][2]} <@&${config.tag_roles[args.group_type][0]}> ${content}`
+		}
+		else {
+			content = `${config.tag_roles[args.group_type][2]} ${args.group_type} ${content}`
 		}
 		let message = await channel.send({embed: embed, content: content});
 		if (channel.id === config.master_channel) {
