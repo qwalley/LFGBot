@@ -30,8 +30,9 @@ The hard way!
   - [ ] Enter the name of your new application and click `create`
   - [ ] Click on the `Bot` tab on the left-hand side, an then choose `Add Bot` in the top right.
   - [ ] Click on the `OAuth2` tab on the left-hand side, and then choose the `bot` option from the list of scopes.
-  - [ ] Copy/paste the url into a broswer and replace the permission value with `76880` before hitting enter. The url should look like this: `https://discord.com/api/oauth2/authorize?client_id=your_client_id&permissions=76880&scope=bot`
-  * If you are the owner of a Discord server you should be prompted to select which server you want to add the bot to.
+  - [ ] Copy/paste the url into a broswer and replace the permission value with `76880` before hitting enter. The url should look like this:           
+  > `https://discord.com/api/oauth2/authorize?client_id=your_client_id&permissions=76880&scope=bot`
+  - [ ] If you are the owner of a Discord server you should be prompted to select which server you want to add the bot to.
 ### 3. Configuring the bot
   - [ ] On you server, open `LFGBot/config.json` in a text editor
   - [ ] todo
