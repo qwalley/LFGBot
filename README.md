@@ -36,7 +36,8 @@ The hard way!
 ### 3. Configuring the bot
   - [ ] Click on the `Bot` tab on the left-hand side, then click `click to reveal token` beside the bot's icon. Copy the token, and keep it private.
   - [ ] On you server, open `LFGBot/sample_config.json` in a text editor. paste your bot's token into the `"token" = ""` field.
-  - [ ] Rename `sample_config.json` to `config.json`. Now in the command line type `node index.js` to start the bot
-  - [ ] USe the `!guilds` and `!roles` commands from your discord to get the channel IDs and role IDs to fill in the other values of `config.json`. Once the `master_server` and `master_channel` values are set, the bot will only accept commands in the `master_channel`.
+  - [ ] Rename `sample_config.json` to `config.json`. Now in the command line type `node index.js` to start the bot.
+  - [ ] Type `!guilds` and `!roles` into a text channel in your discord to get the channel IDs and role IDs to fill in the other values of `config.json`. Once a ChannelID is assigned to the `master_channel` value, the bot will only accept commands in that specific channel.
+  - [ ] The `!lfg` command will not work until `master_channel` and `master_guild` are set.
   
   *more info required on setting up config.json*
