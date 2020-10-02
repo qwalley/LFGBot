@@ -39,6 +39,7 @@ The hard way!
   - [ ] Rename `sample_config.json` to `config.json`. Now in the command line type `node index.js` to start the bot.
   - [ ] Type `!guilds` and `!roles` into a text channel in your discord to get the channel IDs and role IDs to fill in the other values of `config.json`. Once a ChannelID is assigned to the `master_channel` value, the bot will only accept commands in that specific channel.
   - [ ] The `!lfg` command will not work until `master_channel` and `master_guild` are set.
+  
 | Property | Required | Default | Description |
 | ---------|----------|---------|------------ |
 | name | no | "LFGBot" | doesn't actually do anything |
