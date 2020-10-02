@@ -39,17 +39,17 @@ The hard way!
   - [ ] Rename `sample_config.json` to `config.json`. Now in the command line type `node index.js` to start the bot.
   - [ ] Type `!guilds` and `!roles` into a text channel in your discord to get the channel IDs and role IDs to fill in the other values of `config.json`. Once a ChannelID is assigned to the `master_channel` value, the bot will only accept commands in that specific channel.
   - [ ] The `!lfg` command will not work until `master_channel` and `master_guild` are set.
-Property | Required | Default | Description
----------|----------|---------|------------
-name | no | "LFGBot" | doesn't actually do anything
-prefix | yes | "!" | Used to parse commands, characters like `!`, `$`, `#` are ideal
-token | yes | none | Used by the bot to connect to your server
-broadcast_channels | no | none | An optional array of channelIDs to send copies of the LFG posts to
-master_channel | yes | none | The channelID of a text channel. This will be where commands are entered, and posts are made
-master_guild | yes | none | the guildID of a Discord server. The bot will use this to track voice activity, the master_channel should belong to the master_guild
-tag_roles | yes |  | A key:value pair. The key sets valid arguments for the `!lfg` command
-tag_roles[key][0] | no |  | The roleID of a mentionable role in `master_guild`, if set the bot will ping users who have this role when a post is made
-tag_roles[key][1] | no |  | A hex code for the colour assigned the embed for posts made with this role
-tag_roles[key][2] | no |  | An emoji to spice the posts
+| Property | Required | Default | Description |
+| ---------|----------|---------|------------ |
+| name | no | "LFGBot" | doesn't actually do anything |
+| prefix | yes | "!" | Used to parse commands, characters like `!`, `$`, `#` are ideal |
+| token | yes | none | Used by the bot to connect to your server |
+| broadcast_channels | no | none | An optional array of channelIDs to send copies of the LFG posts to  |
+| master_channel | yes | none | The channelID of a text channel. This will be where commands are entered, and posts are made |
+| master_guild | yes | none | the guildID of a Discord server. The bot will use this to track voice activity, the master_channel should belong to the master_guild |
+| tag_roles | yes |  | A key:value pair. The key sets valid arguments for the `!lfg` command |
+| tag_roles[key][0] | no |  | The roleID of a mentionable role in `master_guild`, if set the bot will ping users who have this role when a post is made |
+| tag_roles[key][1] | no |  | A hex code for the colour assigned the embed for posts made with this role |
+| tag_roles[key][2] | no |  | An emoji to spice the posts |
 
   *more info required on setting up config.json*
