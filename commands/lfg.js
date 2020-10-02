@@ -23,7 +23,7 @@ const postInvite = async (channel, args, invite) => {
 			}
 		}
 	} catch(e) {
-		throw 'LFGBot/commands/lfg.js:5 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+		throw 'LFGBot/commands/lfg.js:10 There was an error creating the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
 	}
 	// define the message content
 	try {
@@ -39,7 +39,7 @@ const postInvite = async (channel, args, invite) => {
 		}
 		return message;
 	} catch(e) {
-		throw `LFGBot/commands/lfg.js:24 There was an error sending to ${channel.name} (${channel.id} in ${channel.guild.name}) ${('\n' + e).replace(/\n/g, '\n\t')}`;
+		throw `LFGBot/commands/lfg.js:29 There was an error sending to ${channel.name} (${channel.id} in ${channel.guild.name}) ${('\n' + e).replace(/\n/g, '\n\t')}`;
 	}
 }
 
@@ -86,14 +86,14 @@ module.exports = {
 		try {
 			invite = await channel.createInvite();
 		} catch (e) {
-			throw 'LFGBot/commands/lfg.js:62 There was an error creating the invite.' + ('\n' + e).replace(/\n/g, '\n\t');
+			throw 'LFGBot/commands/lfg.js:86 There was an error creating the invite.' + ('\n' + e).replace(/\n/g, '\n\t');
 		}
 		// send post to the master channel
 		try {
 			let master_message = await postInvite(msg.client.channels.resolve(config.master_channel), embed_args, invite);
 
 		} catch (e) {
-			throw 'LFGBot/commands/lfg.js:67 There was an error sending the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
+			throw 'LFGBot/commands/lfg.js:92 There was an error sending the embed.' + ('\n' + e).replace(/\n/g, '\n\t');
 		}
 		// if master was posted to, then post to broadcast channels
 		try {

@@ -1,4 +1,3 @@
-require('dotenv').config();
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -11,7 +10,7 @@ Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-const TOKEN = process.env.TOKEN;
+const TOKEN = config.token;
 
 bot.login(TOKEN);
 
@@ -54,7 +53,7 @@ const delayedDelete = async (message, userID, channelID) => {
       if (rejections.length > 0) throw rejections.join('\n');
       return results;
   } catch (error) {
-      console.error('LFGBot/index.js:67 There was an error deleting messages.' + ('\n' + error).replace(/\n/g, '\n\t'));
+      console.error('LFGBot/index.js:44 There was an error deleting messages.' + ('\n' + error).replace(/\n/g, '\n\t'));
   }
 }
 
