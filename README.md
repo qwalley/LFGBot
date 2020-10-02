@@ -34,5 +34,8 @@ The hard way!
   > `https://discord.com/api/oauth2/authorize?client_id=your_client_id&permissions=76880&scope=bot`
   - [ ] If you are the owner of a Discord server you should be prompted to select which server you want to add the bot to.
 ### 3. Configuring the bot
-  - [ ] On you server, open `LFGBot/config.json` in a text editor
-  - [ ] todo
+  - [ ] Click on the `Bot` tab on the left-hand side, then click `click to reveal token` beside the bot's icon. Copy the token, and keep it private.
+  - [ ] On you server, open `LFGBot/sample_config.json` in a text editor. paste your bot's token into the `"token" = ""` field.
+  - [ ] Rename `sample_config.json` to `config.json`. Now in the command line type `node index.js` to start the bot
+  - [ ] USe the `!guilds` and `!roles` commands from your discord to get the channel IDs and role IDs to fill in the other values of `config.json`. Once the `master_server` and `master_channel` values are set, the bot will only accept commands in the `master_channel`.
+  *more info required on the config*
