@@ -47,6 +47,11 @@ module.exports = {
 	name: 'lfg',
 	description: 'create a group invitation for anykind of content',
 	async execute(msg, args) {
+		// do not execute this command if bot is not configured
+		if (!(config.master_channel && config.master_guild)) {
+			throw 'master_channel and master_guild must be configured to use LFG command';
+		}
+
 		const guild = msg.client.guilds.resolve(config.master_guild);
 		const voice = guild.voiceStates.resolve(msg.author.id);
 		const priorPost = await utility.searchChannel(msg.client, config.master_channel, msg.author.id);

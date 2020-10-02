@@ -78,8 +78,11 @@ bot.on('ready', async () => {
 });
 
 bot.on('message', async msg => {
-  // check that message is on the correct channel
-  if (config.master_channel !== msg.channel.id) return;
+  // if master channel is configured
+  if (config.master_channel) {
+    // check that message is on the correct channel 
+    if (config.master_channel !== msg.channel.id) return;
+  }
   // if author is not this bot, delete message to reduce cluter
   if (bot.user.id === msg.author.id) {
     return;
