@@ -102,16 +102,18 @@ module.exports = {
 		}
 		// if master was posted to, then post to broadcast channels
 		try {
-			// build array of promises to post embed in each broadcast channel
-			let send_promises = config.broadcast_channels.map(id => postInvite(msg.client.channels.resolve(id), embed_args, invite))
-			// allow all promises to settle
-			let results = await Promise.allSettled(send_promises)
-			// look through completed promises for rejections
-			let rejections = []
-			results.forEach((p, i, results) => {
-				if (p.status === 'rejected') rejections.unshift(p.reason);
-			});
-			if (rejections.length > 0) throw rejections.join('\n');
+			if (config.broadcast_channels.length > 0) {
+				// build array of promises to post embed in each broadcast channel
+				let send_promises = config.broadcast_channels.map(id => postInvite(msg.client.channels.resolve(id), embed_args, invite))
+				// allow all promises to settle
+				let results = await Promise.allSettled(send_promises)
+				// look through completed promises for rejections
+				let rejections = []
+				results.forEach((p, i, results) => {
+					if (p.status === 'rejected') rejections.unshift(p.reason);
+				});
+				if (rejections.length > 0) throw rejections.join('\n');
+			}
 		// failures to send to broadcast channels aren't critical
 		} catch (e) {
 			console.error('Some messages could not be sent: \n' + e)
