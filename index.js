@@ -17,20 +17,20 @@ bot.login(TOKEN);
 const master_embed = config.embeds.master;
 const broadcast_embed = config.embeds.broadcast;
 
-const enterChannel = (id, embed) => {
-  return bot.channels.fetch(id)
-    .then(async channel => {
-      try {
-        // fetch and delete old messages
-        const message_bulk = await channel.messages.fetch({ limit: 100 });
-        channel.bulkDelete(message_bulk);
-      } catch (e) {
-        console.error(e)
-      }
-      // post welcome message with instructions
-      channel.send({embed: embed}).catch(console.error)
-    })
-    .catch(console.error);
+const enterChannel = async (id, embed) => {
+  let channel = null;
+  try {
+    channel = await bot.channels.fetch(id);
+  } catch (error) {
+    throw "Fatal Error: Could not fetch channel. " + ('\n' + error).replace(/\n/g, '\n\t');
+  }
+  try {
+    const message_bulk = await channel.messages.fetch({ limit: 100 });
+    channel.bulkDelete(message_bulk);
+  } catch (error) {
+      console.error('Warning: Could not bulkDelete messages from channel.' + ('\n' + error).replace(/\n/g, '\n\t'));
+  }
+  return channel.send({embed: embed});
 }
 
 const delayedDelete = async (message, userID, channelID) => {
@@ -58,10 +58,14 @@ const delayedDelete = async (message, userID, channelID) => {
 }
 
 bot.on('ready', async () => {
+  console.info(`Logged in as ${bot.user.tag}!`);
   try {
-    console.info(`Logged in as ${bot.user.tag}!`);
     // send welcome message to master channel
     await enterChannel(config.master_channel, master_embed);
+  } catch (error) {
+    throw 'Fatal Error: Could not join Master Channel' + ('\n' + error).replace(/\n/g, '\n\t');
+  }
+  try {
     // create an array of send promises for each broadcast channel
     channel_promises = config.broadcast_channels.map(id => enterChannel(id, broadcast_embed));
     // wait for all promises to resolve
@@ -149,8 +153,6 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     const channelInvites = await oldChannel.fetchInvites();
     const matchedInvites = channelInvites.filter(invite => invite.url === msgInvite);
     // if the user has not left the channel in the LFG Post, there's nothing to do
-    console.log(`old channel: ${oldState.channelID} \t new channel: ${newState.channelID}`)
-    console.log(`msgInvite: ${msgInvite}`)
     if (matchedInvites.size === 0) return;
     // otherwise set timeout to check again in three minutes
     bot.setTimeout(delayedDelete, 3 * 60 * 1000, message, oldState.id, oldState.channelID);
