@@ -2,10 +2,10 @@ exports.parseEmbedUser = (message) => {
 	// check that the message has an embed
  	if (message.embeds.length === 0) return null;
   	const embed = message.embeds[0].toJSON();
+  	if (!embed.description) return null;
   	const description = embed.description.split(/ +/);
+  	if (description.length < 6) return null;
   	return description[5].slice(2, -1)
-  	// return description[5].slice(2, -1)
-
 }
 
 exports.searchChannel = async (bot, channelID, userID) => {
