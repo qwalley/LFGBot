@@ -44,6 +44,7 @@ The hard way!
 | ---------|----------|---------|------------ |
 | name | no | "LFGBot" | doesn't actually do anything |
 | prefix | yes | "!" | Used to parse commands, characters like `!`, `$`, `#` are ideal |
+| leave_delay | yes | "180000" | Number of miliseconds that a host can their voice channel for before the bot deletes their post |
 | token | yes | none | Used by the bot to connect to your server |
 | broadcast_channels | no | none | An optional array of channelIDs to send copies of the LFG posts to  |
 | master_channel | yes | none | The channelID of a text channel. This will be where commands are entered, and posts are made |
