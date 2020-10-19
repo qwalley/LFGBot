@@ -52,5 +52,5 @@ The hard way!
 | tag_roles | yes |  | A key:value pair. The key sets valid arguments for the `!lfg` command |
 | tag_roles[key][0] | no |  | The roleID of a mentionable role in `master_guild`, if set the bot will ping users who have this role when a post is made |
 | tag_roles[key][1] | no |  | A hex code for the colour assigned the embed for posts made with this role |
-| tag_roles[key][2] | no |  | An emoji to spice the posts |
+| tag_roles[key][2] | no |  | An emoji to help customize the posts |
 
