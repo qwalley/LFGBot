@@ -54,4 +54,3 @@ The hard way!
 | tag_roles[key][1] | no |  | A hex code for the colour assigned the embed for posts made with this role |
 | tag_roles[key][2] | no |  | An emoji to spice the posts |
 
-  *more info required on setting up config.json*
