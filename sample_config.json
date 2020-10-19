@@ -2,14 +2,12 @@
 	"name": "LFG Bot",
 	"token": "",
 	"prefix": "!",
+	"leave_delay": "180000",
 	"broadcast_channels": [],
 	"master_channel": "",
 	"master_guild": "",
 	"tag_roles": {
-		"hellgate": ["", "#e71a00", ":heart:"],
-		"famefarm": ["", "#3498db", ":blue_heart:"],
-		"gank": ["", "#eeeeee", ":white_heart:"]
-
+		"content_type": ["", "#e71a00", ":heart:"],
 	},
 	"embeds": {
 		"master": {

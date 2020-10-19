@@ -22,15 +22,19 @@ const enterChannel = async (id, embed) => {
   try {
     channel = await bot.channels.fetch(id);
   } catch (error) {
-    throw "Fatal Error: Could not fetch channel. " + ('\n' + error).replace(/\n/g, '\n\t');
+    throw "Error: Could not fetch channel: " + id + ('\n' + error).replace(/\n/g, '\n\t');
   }
   try {
     const message_bulk = await channel.messages.fetch({ limit: 100 });
     channel.bulkDelete(message_bulk);
   } catch (error) {
-      console.error('Warning: Could not bulkDelete messages from channel.' + ('\n' + error).replace(/\n/g, '\n\t'));
+      console.error('Warning: Could not bulkDelete messages from channel: ' + id + ('\n' + error).replace(/\n/g, '\n\t'));
   }
-  return channel.send({embed: embed});
+  try {
+    return await channel.send({embed: embed});
+  } catch (error) {
+    throw "Error: Could not send welcome message to channel: " + id + ('\n' + error).replace(/\n/g, '\n\t');
+  }
 }
 
 const delayedDelete = async (message, userID, channelID) => {
@@ -155,7 +159,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     // if the user has not left the channel in the LFG Post, there's nothing to do
     if (matchedInvites.size === 0) return;
     // otherwise set timeout to check again in three minutes
-    bot.setTimeout(delayedDelete, 3 * 60 * 1000, message, oldState.id, oldState.channelID);
+    bot.setTimeout(delayedDelete, config.leave_delay, message, oldState.id, oldState.channelID);
   } catch (error) {
     console.error(error);
   }
